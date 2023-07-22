@@ -2,17 +2,16 @@ const express = require('express')
 const app = express()
 
 var cors = require('cors')
+
 require('dotenv').config()
 const { MongoClient, ServerApiVersion } = require('mongodb');
 const port =process.env.PORT ||  8000
 
-// collagely
-//AJdDLy3nTwJo65YW
 app.use(express.json())
 app.use(cors())
 
 
-const uri = "mongodb://collagely:AJdDLy3nTwJo65YW@ac-mvazqsy-shard-00-00.hpy6sqt.mongodb.net:27017,ac-mvazqsy-shard-00-01.hpy6sqt.mongodb.net:27017,ac-mvazqsy-shard-00-02.hpy6sqt.mongodb.net:27017/?ssl=true&replicaSet=atlas-vll8ae-shard-0&authSource=admin&retryWrites=true&w=majority";
+const uri = `mongodb://${process.env.ADMIN_USER}:${process.env.ADMIN_PASSWORD}@ac-mvazqsy-shard-00-00.hpy6sqt.mongodb.net:27017,ac-mvazqsy-shard-00-01.hpy6sqt.mongodb.net:27017,ac-mvazqsy-shard-00-02.hpy6sqt.mongodb.net:27017/?ssl=true&replicaSet=atlas-vll8ae-shard-0&authSource=admin&retryWrites=true&w=majority`;
 
 // Create a MongoClient with a MongoClientOptions object to set the Stable API version
 const client = new MongoClient(uri, {
