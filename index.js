@@ -4,7 +4,7 @@ const app = express()
 var cors = require('cors')
 
 require('dotenv').config()
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion ,ObjectId} = require('mongodb');
 const port =process.env.PORT ||  8000
 
 app.use(express.json())
@@ -28,12 +28,35 @@ async function run() {
     await client.connect();
     // Send a ping to confirm a successful connection
     const collagesCollection = client.db("collagely").collection("allcollage");
+    const submitCollection = client.db("collagely").collection("submit");
 
     app.get('/collages', async (req, res) => {
         const result = await collagesCollection.find().toArray();
         res.send(result);
       });
 
+      app.get('/collages/:id', async(req, res) => {
+        const id = req.params.id;
+        const query = { _id: new ObjectId(id) };
+        const result = await collagesCollection.findOne(query);
+        res.send(result);
+    });
+
+    app.post('/submission', async(req,res)=>{
+      const newsubmit =  req.body;
+      console.log(newsubmit)
+      
+      const result = await submitCollection.insertOne(newsubmit);
+      res.send(result)
+    })
+
+    app.get('/submission', async (req, res) => {
+      const email = req.query.email
+      console.log("sub",email)
+      const query = { email: email };
+      const result = await submitCollection.find(query).toArray();
+      res.send(result);
+    });
 
 
     await client.db("admin").command({ ping: 1 });
