@@ -25,10 +25,11 @@ const client = new MongoClient(uri, {
 async function run() {
   try {
     // Connect the client to the server	(optional starting in v4.7)
-    await client.connect();
+    // await client.connect();
     // Send a ping to confirm a successful connection
     const collagesCollection = client.db("collagely").collection("allcollage");
     const submitCollection = client.db("collagely").collection("submit");
+    const reviewCollection = client.db("collagely").collection("reviewst")
 
     app.get('/collages', async (req, res) => {
         const result = await collagesCollection.find().toArray();
@@ -50,6 +51,14 @@ async function run() {
       res.send(result)
     })
 
+    app.get('/submission/:id', async(req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      const result = await submitCollection.findOne(query);
+      res.send(result);
+  });
+
+
     app.get('/submission', async (req, res) => {
       const email = req.query.email
       console.log("sub",email)
@@ -57,8 +66,46 @@ async function run() {
       const result = await submitCollection.find(query).toArray();
       res.send(result);
     });
+    // ------------review sections
+    app.post('/reviews', async(req,res)=>{
+      const newreview =  req.body;
+      console.log(newreview)
+      
+      const result = await reviewCollection.insertOne(newreview);
+      res.send(result)
+    })
+    
+    app.get('/reviews', async (req, res) => {
+      const result = await reviewCollection.find().toArray();
+      res.send(result);
+    });
+    
+    // Review section End
+
+    // start update
+   app.put('/submission/:id', async(req,res) =>{
+    const id = req.params.id;
+    const updatedata = req.body
+    console.log("lg",updatedata )
+    const filter = { _id: new ObjectId(id) };
+    const options = { upsert: true };
+    const update = {
+        $set: {
+          candidateName:updatedata.candidateName,
+          email:updatedata.email,
+          subject:updatedata.subject,
+          phone:updatedata.phone,
+          address:updatedata.address,
+          dateofBirth:updatedata.dateofBirth,
+          imgurl:updatedata.imgurl,
+        },
+      };
+      const result = await submitCollection.updateOne(filter, update, options);
+      res.send(result)
+ })
 
 
+ 
     await client.db("admin").command({ ping: 1 });
     console.log("Pinged your deployment. You successfully connected to MongoDB!");
   } finally {
